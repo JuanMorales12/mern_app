@@ -1,13 +1,17 @@
 const mongoose = require("mongoose");
-exports.connectDB = (mongoose) => {
+require('dotenv').config();
+
+exports.connectDB = async (mongoose) => {
   try {
-    mongoose.connect("mongodb://localhost:27017/ecommerce", {
+    const dbUri = process.env.DATABASE || "mongodb://localhost:27017/ecommerce";
+    await mongoose.connect(dbUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
     });
     console.log("Database Connected Successfully");
   } catch (err) {
-    console.log("Database Not Connected");
+    console.error("Database Not Connected:", err.message);
+    throw err;
   }
 }

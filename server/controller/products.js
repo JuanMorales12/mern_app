@@ -237,6 +237,46 @@ class Product {
     }
   }
 
+  async searchProducts(req, res) {
+    let { title, description, minPrice, maxPrice } = req.body;
+
+    try {
+      // Build query object dynamically
+      let query = {};
+
+      // Search by title (case insensitive)
+      if (title) {
+        query.pName = { $regex: title, $options: "i" };
+      }
+
+      // Search by description (case insensitive)
+      if (description) {
+        query.pDescription = { $regex: description, $options: "i" };
+      }
+
+      // Filter by price range
+      if (minPrice || maxPrice) {
+        query.pPrice = {};
+        if (minPrice) {
+          query.pPrice.$gte = Number(minPrice);
+        }
+        if (maxPrice) {
+          query.pPrice.$lte = Number(maxPrice);
+        }
+      }
+
+      let products = await productModel
+        .find(query)
+        .populate("pCategory", "cName")
+        .sort({ _id: -1 });
+
+      return res.json({ Products: products });
+    } catch (err) {
+      console.log(err);
+      return res.json({ error: "Search failed" });
+    }
+  }
+
   async getWishProduct(req, res) {
     let { productArray } = req.body;
     if (!productArray) {

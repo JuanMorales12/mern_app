@@ -51,10 +51,13 @@ const destroyData = async () => {
     process.exit(1)
   }
 }
-connectDB(mongoose);
-if (process.argv[2] === '-d') {
-
-  destroyData()
-} else {
-  importData()
-}  
+connectDB(mongoose).then(() => {
+  if (process.argv[2] === '-d') {
+    destroyData()
+  } else {
+    importData()
+  }
+}).catch((err) => {
+  console.error('Failed to connect to database:', err);
+  process.exit(1);
+});  
